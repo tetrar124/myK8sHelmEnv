@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-http
+  labels:
+    app: grafana
+spec:
+  restartPolicy: OnFailure
+  selector:
+    app: grafana
+  port:
+    - port: 80
+      targetPort: 3000
+  type: LoadBalancer
+    
