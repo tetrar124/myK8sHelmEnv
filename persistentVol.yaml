@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-os002
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  #storageClassName: hostpath
+  mountOptions:
+    - hard
+  # nfs:
+  #   path: /c/k/share
+  #   server: 127.0.0.1
+
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /c/k/share
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: docker.io/hostname
+          operator: In
+          values:
+          - example-node
