@@ -1,0 +1,7 @@
+persistence:
+  enabled: True
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  existingClaim: local-mysql-claim

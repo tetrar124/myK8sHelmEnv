@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: nginx-dep
+  name: nginx
 spec:
   replicas: 2
   template:
@@ -20,4 +20,4 @@ spec:
       volumes:
         - name: mydate
           persistentVolumeClaim:
-            claimName: nfs-claim11
+            claimName: nfs-claim1

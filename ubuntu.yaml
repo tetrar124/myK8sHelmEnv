@@ -21,4 +21,4 @@ spec:
       #  path: /c/k/share/ubuntu
       #  type: DirectoryOrCreate    
       persistentVolumeClaim:
-        claimName: nfs-os-claim1
+        claimName: local-ubuntu-claim
