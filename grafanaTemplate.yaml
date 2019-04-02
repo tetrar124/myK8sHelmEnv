@@ -4,4 +4,4 @@ persistence:
   accessModes:
     - ReadWriteOnce
   size: 1Gi
-  existingClaim: local-mysql-claim
+  existingClaim: local-grafana-claim

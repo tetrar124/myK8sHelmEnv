@@ -14,6 +14,8 @@ spec:
       volumeMounts:
         - mountPath: /mnt
           name: mount-volume
+        - mountPath: /mnt2
+          name: mount-volume2
   restartPolicy: OnFailure
   volumes:
     - name: mount-volume
@@ -21,4 +23,10 @@ spec:
       #  path: /c/k/share/ubuntu
       #  type: DirectoryOrCreate    
       persistentVolumeClaim:
-        claimName: local-ubuntu-claim
+         claimName: local-ubuntu-claim
+    - name: mount-volume2
+      # hostPath:
+      #  path: /c/k/share/ubuntu
+      #  type: DirectoryOrCreate    
+      persistentVolumeClaim:
+          claimName: local-ubuntu2-claim

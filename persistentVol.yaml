@@ -6,25 +6,25 @@ metadata:
     type: local
 spec:
   capacity:
-    storage: 10Gi
+    storage: 5Gi
   # volumeMode: Filesystem
 
   accessModes:
     - ReadWriteOnce
   #storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
   storageClassName: local-storage
-  local:
+  hostPath:
     path: /C/k/share/ubuntu
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        #- key: docker.io/hostname
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - docker-desktop
+  # nodeAffinity:
+  #   required:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       #- key: docker.io/hostname
+  #       - key: kubernetes.io/hostname
+  #         operator: In
+  #         values:
+  #         - docker-desktop
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -34,14 +34,41 @@ metadata:
     type: local
 spec:
   capacity:
-    storage: 10Gi
+    storage: 5Gi
   # volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  #persistentVolumeReclaimPolicy: Delete
-  storageClassName: manual
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: hostpath
   local:
-    path: /C/k/share/mysql
+    path: /C/k/share/ubuntu2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - docker-desktop
+
+          
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv003
+  labels:
+    type: grafana
+spec:
+  capacity:
+    storage: 5Gi
+  # volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: hostpath
+  local:
+    path: /host_mnt/C/k/share/mysql
   nodeAffinity:
     required:
       nodeSelectorTerms:
