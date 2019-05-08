@@ -6,9 +6,9 @@ spec:
   containers:
     - image: gcr.io/kaniko-project/executor:latest
       args: 
-      - --dockerfile=/mnt/Dockerfile 
+      - --dockerfile=/mnt/ssh.dockerfile 
       - --context= /mnt
-      - --destination=tatabox2000/private-tatabox
+      - --destination=tetrar124/ubuntussh1
 
       name: kaniko
       volumeMounts:
