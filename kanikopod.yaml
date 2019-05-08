@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+    - image: gcr.io/kaniko-project/executor:latest
+      args: 
+      - --dockerfile=/mnt/Dockerfile 
+      - --context= /mnt
+      - --destination=tatabox2000/private-tatabox
+
+      name: kaniko
+      volumeMounts:
+        - name: mount-volume
+          mountPath: /mnt
+        - name: kaniko-secret
+          mountPath: /root
+
+  restartPolicy: Never
+  volumes:
+    - name: mount-volume
+      persistentVolumeClaim:
+        claimName: kaniko-workspace
+      volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: regcred
+        items:
+          - key: .dockerconfigjson
+            path: .docker/config.json
+  # imagePullSecrets:
+  #   - name: regcred

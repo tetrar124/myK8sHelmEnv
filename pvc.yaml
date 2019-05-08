@@ -62,3 +62,19 @@ spec:
   selector:
     matchLabels:
       type: grafana
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kaniko-workspace
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  
+  # volumeMode: Block
+  storageClassName: hostpath
+  selector:
+    matchLabels:
+      type: kaniko

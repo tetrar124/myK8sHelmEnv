@@ -77,3 +77,28 @@ spec:
           operator: In
           values:
           - docker-desktop
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv004
+  labels:
+    type: kaniko
+spec:
+  capacity:
+    storage: 1Gi
+  # volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: hostpath
+  local:
+    path: /C/k/share/kaniko
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - docker-desktop        

@@ -6,7 +6,8 @@ metadata:
     app: ubuntu18
 spec:
   containers:
-    - image: ubuntu:18.04
+    #- image: ubuntu:18.04
+    - image: tatabox2000/private-tatabox
       name: ubuntu18
       command:
         - sleep
@@ -25,8 +26,10 @@ spec:
       persistentVolumeClaim:
          claimName: local-ubuntu-claim
     - name: mount-volume2
-      # hostPath:
-      #  path: /c/k/share/ubuntu
-      #  type: DirectoryOrCreate    
-      persistentVolumeClaim:
-          claimName: local-ubuntu2-claim
+      hostPath:
+       path: /c/k/share/ubuntu
+       type: DirectoryOrCreate    
+      # persistentVolumeClaim:
+      #     claimName: local-ubuntu2-claim
+  imagePullSecrets:
+    - name: regcred
