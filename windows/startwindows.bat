@@ -12,3 +12,4 @@ choco install -y -google-chrome-x64
 choco install -y notepadplusplus
 choco install -y slack
 choco install -y mousewithoutborders
+choco install -y gimp
