@@ -1,4 +1,4 @@
-version: "3"
+version: "2.3"
 services:
   jupyter:
     build: .
@@ -6,5 +6,5 @@ services:
       - ~/tmp:/tmp/working
     working_dir: /tmp/working
     ports:
-      - 1234:1234
+      - 1234:8888
     command: jupyter notebook --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token=''
