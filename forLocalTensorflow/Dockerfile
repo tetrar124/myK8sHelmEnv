@@ -1,40 +1,72 @@
 FROM continuumio/anaconda3
 
-RUN apt-get update && apt-get install -y openssh-server
+RUN apt update && apt install -y openssh-server curl zip unzip vim
+
 RUN mkdir /var/run/sshd
+# ENV USER tatabox
+# ENV SHELL /bin/bash
+# RUN apt install -y sudo
+# RUN useradd -m ${USER}
+# RUN gpasswd -a ${USER} sudo
+# RUN echo "${USER}:kiyohara" | chpasswd && \
+# echo "/bin/bash" >> /etc/profile.d/default.sh  && \
+RUN echo "alias python="/opt/conda/bin/python"" >> /etc/profile.d/default.sh
+# ENV NOTVISIBLE "in users profile"
+# EXPOSE 22
+# CMD ["/usr/sbin/sshd", "-D"]
+# #spark
+RUN curl -O http://ftp.tsukuba.wide.ad.jp/software/apache/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz &&\
+tar -zxvf spark-2.4.3-bin-hadoop2.7.tgz &&\
+mv spark-2.4.3-bin-hadoop2.7 /usr/local &&\
+ln -s /usr/local/spark-2.4.3-bin-hadoop2.7 /usr/local/spark
+ENV PATH "/usr/local/spark/bin:${PATH}" 
 
-ENV USER tatabox
-ENV SHELL /bin/bash
-RUN apt install -y sudo
-RUN useradd -m ${USER}
-RUN gpasswd -a ${USER} sudo
-RUN echo "${USER}:kiyohara" | chpasswd && \
-echo "/bin/bash" >> /home/${USER}/.bash_profile && \
-echo "alias python="/opt/conda/bin/python"" >> /home/${USER}/.bash_profile
-ENV NOTVISIBLE "in users profile"
-RUN echo "export VISIBLE=now" >> /etc/profile
+#java,spark,kotlin
+#for access sdkman
+# ENV SDKMAN_DIR "/usr/local/sdkman" 
+# SHELL ["/bin/bash", "-c"]
+# RUN curl -s "https://get.sdkman.io" | bash &&\
+# source "/usr/local/sdkman/bin/sdkman-init.sh" \
+# ;sdk install java;sdk install kotlin;sdk install gradle;sdk install sbt
 
-EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
-RUN conda install -c rdkit rdkit && \
-pip install tensorflow-gpu==2.0.0-alpha0 && \
-pip install python-louvain && \
-conda install -y cudnn cudatoolkit numba && \
-pip install -U pip && \
-pip install cairosvg && \
-apt install -y --reinstall build-essential && \
-apt-get install -y python-dev libopenblas-dev && \
-git clone --recursive https://github.com/ibayer/fastFM.git && \
-cd fastFM && \
-pip install -r ./requirements.txt && \
-PYTHON=python3 make && \  
-pip install . && \
-pip install fastprogress japanize-matplotlib && \
-pip install xgboost &&\
-pip install lightgbm &&\
-pip install rgf-python &&\
-pip install mlxtend &&\
-pip install bayesian-optimization
+#path and env for all user
+RUN sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config &&\
+echo "root:kiyohara" | chpasswd && \
+echo "export SDKMAN_DIR="/usr/local/sdkman""  >> /etc/environment  && \
+echo "export SPARK_HOME=/usr/local/spark"  >> /etc/environment
+#RUN echo "/bin/bash source "/usr/local/sdkman/bin/sdkman-init.sh"" >> /etc/profile.d/default.sh &&\
+#echo "/bin/bash-s "/usr/local/sdkman/bin/sdkman-init.sh"" >> /etc/profile.d/default.sh
 
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES utility,compute
+# RUN pip install -U pip
+# RUN conda install -c rdkit rdkit && \
+# pip install tensorflow-gpu==2.0.0-alpha0 && \
+# pip install python-louvain && \
+# conda install -y cudnn cudatoolkit numba && \
+# pip install cairosvg && \
+# apt install -y --reinstall build-essential && \
+# apt-get install -y python-dev libopenblas-dev && \
+# git clone --recursive https://github.com/ibayer/fastFM.git && \
+# cd fastFM && \
+# pip install -r ./requirements.txt && \
+# PYTHON=python3 make && \  
+# pip install . && \
+# pip install fastprogress japanize-matplotlib && \
+# pip install xgboost &&\
+# pip install lightgbm &&\
+# pip install rgf-python &&\
+# pip install mlxtend &&\
+# pip install bayesian-optimization
+
+# ENV NVIDIA_VISIBLE_DEVICES all
+# ENV NVIDIA_DRIVER_CAPABILITIES utility,compute
+
+# RUN apt -y install git gcc make openssl libssl-dev libbz2-dev libreadline-dev libsqlite3-dev  python3-tk tk-dev python-tk libfreetype6-dev python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+# RUN pip install gym && \
+# pip install gym[classic_control] &&\
+# pip install gym[box2d] && \
+# git clone https://github.com/openai/baselines.git &&\
+# cd baselines &&\
+# pip install -e . &&\
+# pip install pytest &&\
+# pip install gym-retro
+RUN chmod 755 /etc/profile.d/default.sh
