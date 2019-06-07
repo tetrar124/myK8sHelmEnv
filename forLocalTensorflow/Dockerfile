@@ -27,7 +27,7 @@ source "/usr/local/sdkman/bin/sdkman-init.sh" \
 #sdk install spark;sdk install sbt
 RUN echo "export SDKMAN_DIR="/usr/local/sdkman""  >> /etc/environment  
 
-# spark
+#spark
 RUN curl -O http://ftp.tsukuba.wide.ad.jp/software/apache/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz &&\
 tar -zxvf spark-2.4.3-bin-hadoop2.7.tgz &&\
 mv spark-2.4.3-bin-hadoop2.7 /usr/local &&\
@@ -41,8 +41,8 @@ RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "export PATH=${PATH}:/usr/l
 RUN mkdir  ~/.ssh/ && mkdir /home/${USER}/.ssh/
 RUN touch ~/.ssh/environment && touch /home/${USER}/.ssh/environment
 RUN echo 'PermitUserEnvironment yes' >> /etc/ssh/sshd_config 
-RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "export PATH=${PATH}:/usr/local/spark/bin" >> ~/.ssh/environment
-RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "export PATH=${PATH}:/usr/local/spark/bin" >> /home/${USER}/.ssh/environment
+RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "PATH=${PATH}:/usr/local/spark/bin" >> ~/.ssh/environment
+RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "PATH=${PATH}:/usr/local/spark/bin" >> /home/${USER}/.ssh/environment
 
 #path and env of sdkman for all user 
 #RUN echo "/bin/bash source "/usr/local/sdkman/bin/sdkman-init.sh"" >> /etc/profile.d/default.sh &&\
