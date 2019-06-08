@@ -1,0 +1,13 @@
+version: "2.3"
+services:
+  jupyter:
+    build: .
+    image: forlocaltensorflow_jupyter
+    volumes:
+      - ~/tmp:/tmp/working
+    working_dir: /tmp/working
+    ports:
+      - '1234:8888'
+      - '1022:22'
+    command: /usr/sbin/sshd -D
+    #command: jupyter notebook --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token=''

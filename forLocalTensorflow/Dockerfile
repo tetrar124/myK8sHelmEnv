@@ -7,59 +7,53 @@ ENV SHELL /bin/bash
 RUN apt install -y sudo
 RUN useradd -m ${USER}
 RUN gpasswd -a ${USER} sudo
-RUN echo "${USER}:kiyohara" | chpasswd && \
-echo "/bin/bash" >> /etc/profile.d/default.sh  && \
-echo "alias python="/opt/conda/bin/python"" >> /etc/profile.d/default.sh
-ENV NOTVISIBLE "in users profile"
+RUN echo "${USER}:kiyohara" | chpasswd &&\
+echo "/bin/bash" >> /etc/profile.d/default.sh
+
+
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
-
-#root user
-RUN echo "root:kiyohara" | chpasswd && \
-sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
-
-#java,spark,kotlin
-ENV SDKMAN_DIR /usr/local/sdkman 
-SHELL ["/bin/bash", "-c"]
-RUN curl -s "https://get.sdkman.io" | bash &&\
-source "/usr/local/sdkman/bin/sdkman-init.sh" \
-;sdk install java;sdk install kotlin;sdk install gradle;sdk install scala;sdk flush archives;
-#sdk install spark;sdk install sbt
-RUN echo "export SDKMAN_DIR="/usr/local/sdkman""  >> /etc/environment  
-
-#spark
+## spark
 RUN curl -O http://ftp.tsukuba.wide.ad.jp/software/apache/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz &&\
 tar -zxvf spark-2.4.3-bin-hadoop2.7.tgz &&\
 mv spark-2.4.3-bin-hadoop2.7 /usr/local &&\
-ln -s spark-2.4.3-bin-hadoop2.7 /usr/local/spark 
+ln -s /usr/local/spark-2.4.3-bin-hadoop2.7 /usr/local/spark 
 RUN echo "export SPARK_HOME=/usr/local/spark"  >> /etc/environment
-ENV PATH ${PATH}:/usr/local/spark/bin
-RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "export PATH=${PATH}:/usr/local/spark/bin" >> ~/.profile
-RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "export PATH=${PATH}:/usr/local/spark/bin" >> /home/${USER}/.profile
-#RUN echo "source ~/.profile" >> /etc/profile.d/default.sh
 
-RUN mkdir  ~/.ssh/ && mkdir /home/${USER}/.ssh/
-RUN touch ~/.ssh/environment && touch /home/${USER}/.ssh/environment
-RUN echo 'PermitUserEnvironment yes' >> /etc/ssh/sshd_config 
-RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "PATH=${PATH}:/usr/local/spark/bin" >> ~/.ssh/environment
-RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "PATH=${PATH}:/usr/local/spark/bin" >> /home/${USER}/.ssh/environment
+##java,spark,kotlin,gradle
+ENV SDKMAN_DIR "/usr/local/sdkman" 
+SHELL ["/bin/bash", "-c"]
+RUN curl -s "https://get.sdkman.io" | bash &&\
+source "/usr/local/sdkman/bin/sdkman-init.sh" \
+;sdk install java;sdk install kotlin;sdk install gradle;sdk install scala;sdk flush temp;
+#sdk install sbt;sdk install spark;
 
-#path and env of sdkman for all user 
-#RUN echo "/bin/bash source "/usr/local/sdkman/bin/sdkman-init.sh"" >> /etc/profile.d/default.sh &&\
-#echo "/bin/bash -c "/usr/local/sdkman/bin/sdkman-init.sh"" >> /etc/profile.d/default.sh &&\
-#RUN echo "bash -c "source  ~/.profile"" >> /etc/profile.d/default.sh
+## android
+# RUN wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
+# RUN mkdir -p /Android/sdk
+# RUN unzip sdk-tools-linux-4333796.zip -d /Android/sdk
+ENV ANDROID_HOME /Android/sdk
 
-#RDkit
-RUN conda install -c rdkit rdkit
+## path and env for the user
+RUN echo "alias python="/opt/conda/bin/python"" >> /home/${USER}/.bashrc
+RUN echo "export SDKMAN_DIR="/usr/local/sdkman""  >> /etc/environment
+RUN chmod 755 /usr/local/sdkman/bin/sdkman-init.sh
+RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "PATH=${PATH}:/usr/local/spark/bin:$ANDROID_HOME/bin" >> /home/${USER}/.bashrc
+RUN echo "bash -c "/usr/local/sdkman/bin/sdkman-init.sh"" >> /etc/profile.d/default.sh
+RUN echo "if [ -f ~/.bashrc ]; then  . ~/.bashrc;  fi" >>/home/${USER}/.bash_profile
 
-#Deep learning
+# for root login
+# RUN sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config &&\
+# echo "root:kiyohara" | chpasswd
+# ENV NOTVISIBLE "in users profile"
+# RUN source /usr/local/sdkman/bin/sdkman-init.sh;echo "PATH=/usr/local/spark/bin:${PATH}" >> ~/.bashrc &&\
+# echo "if [ -f ~/.bashrc ]; then  . ~/.bashrc;  fi" >>~/.bash_profile
+
 RUN pip install -U pip
 RUN conda install -c rdkit rdkit && \
 pip install tensorflow-gpu==2.0.0-alpha0 && \
 pip install python-louvain && \
 conda install -y cudnn cudatoolkit numba && \
-
-#others
 pip install cairosvg && \
 apt install -y --reinstall build-essential && \
 apt-get install -y python-dev libopenblas-dev && \
@@ -78,7 +72,6 @@ pip install bayesian-optimization
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES utility,compute
 
-# Reinforcement learning
 RUN apt -y install git gcc make openssl libssl-dev libbz2-dev libreadline-dev libsqlite3-dev  python3-tk tk-dev python-tk libfreetype6-dev python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 RUN pip install gym && \
 pip install gym[classic_control] &&\
@@ -88,8 +81,5 @@ cd baselines &&\
 pip install -e . &&\
 pip install pytest &&\
 pip install gym-retro
-
-# clean up 
 RUN apt clean
-# start up
 RUN chmod 755 /etc/profile.d/default.sh
