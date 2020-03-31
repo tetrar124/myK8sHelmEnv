@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-logging
+  namespace: default
+  labels:
+    k8s-app: elasticsearch-logging
+    version: v7.5.1
+    kubernetes.io/cluster-service: "true"
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: elasticsearch-logging
+      version: v7.5.1
+  template:
+    metadata:
+      labels:
+        k8s-app: elasticsearch-logging
+        version: v7.5.1
+        kubernetes.io/cluster-service: "true"
+    spec:
+      nodeSelector:
+        role: monitoring
+      containers:
+      - name: elasticsearch-logging
+        image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.5.1
+        resources:
+            limits:
+              cpu: 1000m
+            requests:
+              cpu: 100m
+        ports:
+        - containerPort: 9200
+          name: db
+          protocol: TCP
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+        env:
+          - name: cluster.name
+            value: elasticsearch-cluster
+          - name: node.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: discovery.seed_hosts
+            value: "_local_, 127.0.0.1, [::1], elasticsearch-logging-0.elasticsearch,elasticsearch-logging-1.elasticsearch"
+          # - name: discovery.zen.minimum_master_nodes
+          #   value: "2"
+          - name: ES_JAVA_OPTS
+            value: "-Xms512m -Xmx512m"
+      initContainers:
+      - image: alpine:3.6
+        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        name: elasticsearch-logging-init-vm-map-count
+        securityContext:
+          privileged: true
+      - image: alpine:3.6
+        command: ["sh", "-c", "ulimit -n 65536"]
+        name: elasticsearch-logging-init-ulimit
+        securityContext:
+          privileged: true
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        app: elasticsearch
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
+      storageClassName: hostpath
+      selector:
+        matchLabels:
+          type: local

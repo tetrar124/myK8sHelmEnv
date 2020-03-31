@@ -1,0 +1,1 @@
+kubectl port-forward elasticsearch-kibana 80:80

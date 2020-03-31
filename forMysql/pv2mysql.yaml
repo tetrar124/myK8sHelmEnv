@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pvmysql
+  labels:
+    vol: mysql
+spec:
+  capacity:
+    storage: 10Gi
+  # volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  # persistentVolumeReclaimPolicy: Delete
+  storageClassName: hostpath
+  hostPath:
+    path: /C/k/share/mysql    

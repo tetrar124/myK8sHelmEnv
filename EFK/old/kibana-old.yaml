@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana-logging
+  namespace: default
+  labels:
+    k8s-app: kibana-logging
+    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kibana-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: kibana-logging
+    spec:
+      nodeSelector:
+        role: monitoring
+      containers:
+      - name: kibana-logging
+        image: docker.elastic.co/kibana/kibana-oss:7.5.1
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        env:
+          - name: ELASTICSEARCH_HOSTS
+            value: http://elasticsearch-logging:9200
+        ports:
+        - containerPort: 5601
+          name: ui
+          protocol: TCP

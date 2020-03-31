@@ -1,0 +1,13 @@
+version: "3"
+services:
+  embulk:
+    #docker-composeの実行場所
+    build: .
+    volumes:
+      #コンテナとの共有フォルダ
+      - ~/tmp:/tmp/working
+    working_dir: /tmp/working
+    ports:
+      - '8888:8888'
+      - '22:22'
+    tty: true
